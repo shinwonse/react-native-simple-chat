@@ -1,11 +1,9 @@
-import React , { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Platform, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import * as Permissions from 'expo-permissions';
-import styled from 'styled-components';
+import styled from 'styled-components/native';
 import PropTypes from 'prop-types';
 import { MaterialIcons } from '@expo/vector-icons';
-import * as MediaLibrary from 'expo-media-library';
 
 const Container = styled.View`
     align-self: center;
@@ -45,41 +43,41 @@ const PhotoButton = ({ onPress }) => {
 
 const Image = ({ url, imageStyle, rounded, showButton, onChangeImage }) => {
     useEffect(() => {
-        (async () => {
-            try {
-                if(Platform.OS === 'ios') {
-                    const { status } = await Permissions.askAsync(
-                        Permissions.CAMERA_ROLL
-                    );
-                    if(status !== 'granted') {
-                        Alert.alert(
-                            'Photo Permission',
-                            'Please turn on the camera roll permissions.'
-                        );
-                    }
-                }
-            } catch (e) {
-                Alert.alert('Photo Permission Error', e.message);
+      (async () => {
+        try {
+          if (Platform.OS !== 'web') {
+            const {
+              status,
+            } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+              Alert.alert(
+                'Photo Permission',
+                'Please turn on the camera roll permissions.'
+              );
             }
-        })();
+          }
+        } catch (e) {
+          Alert.alert('Photo Permission Error', e.message);
+        }
+      })();
     }, []);
 
     const _handleEditButton = async () => {
         try {
-            const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [1, 1],
-                quality: 1,
-            });
-
-            if(!result.cancelled) {
-                onChangeImage(result.uri);
-            }
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 1,
+          });
+    
+          if (!result.cancelled) {
+            onChangeImage(result.uri);
+          }
         } catch (e) {
-            Alert.alert('Photo Error', e.message);
+          Alert.alert('Photo Error', e.message);
         }
-    };
+      };
     return (
         <Container>
             <StyledImage source={{ uri: url }} style={imageStyle} rounded={rounded}/>
